@@ -15,7 +15,7 @@ export const getSMSEvidence = async (id: number) => {
   return _smsRepository.findOne(id);
 };
 
-export const updatePaymentEvidence = async (smsEvidence: SMSEvidence): Promise<SMSEvidence> => {
+export const updateSMSEvidence = async (smsEvidence: SMSEvidence): Promise<SMSEvidence> => {
   const _smsRepository = smsRepository();
   return _smsRepository.save(smsEvidence);
 };

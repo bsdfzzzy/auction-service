@@ -26,6 +26,15 @@ const good = {
 };
 
 describe('PaymentService', () => {
+  const spyResStatus = jest.fn();
+  const spyResSend = jest.fn();
+
+  let spyReq: any;
+  const spyRes: any = {
+    status: spyResStatus.mockReturnValue({ send: spyResSend }),
+  };
+  const spyNext = jest.fn();
+
   describe('finalPayment', () => {
     it('should return 201 when final payment works fine', async () => {
       mocked(getGoodInfo).mockResolvedValue(good);
@@ -41,14 +50,7 @@ describe('PaymentService', () => {
       } as any);
       mocked(payment).mockResolvedValue(new PaymentResponse(201));
 
-      const spyResStatus = jest.fn();
-      const spyResSend = jest.fn();
-
-      const spyReq: any = { params: {}, body: { amount: 9000 } };
-      const spyRes: any = {
-        status: spyResStatus.mockReturnValue({ send: spyResSend }),
-      };
-      const spyNext = jest.fn();
+      spyReq = { params: {}, body: { amount: 9000 } };
 
       await finalPayment(spyReq, spyRes, spyNext);
 
@@ -60,14 +62,7 @@ describe('PaymentService', () => {
       mocked(getGoodInfo).mockResolvedValue(good);
       mocked(calculatePrice).mockReturnValue(200);
 
-      const spyResStatus = jest.fn();
-      const spyResSend = jest.fn();
-
-      const spyReq: any = { params: {}, body: { amount: 100 } };
-      const spyRes: any = {
-        status: spyResStatus.mockReturnValue({ send: spyResSend }),
-      };
-      const spyNext = jest.fn();
+      spyReq = { params: {}, body: { amount: 100 } };
 
       await finalPayment(spyReq, spyRes, spyNext);
 
@@ -79,14 +74,7 @@ describe('PaymentService', () => {
       mocked(getGoodInfo).mockResolvedValue(good);
       mocked(calculatePrice).mockReturnValue(200);
 
-      const spyResStatus = jest.fn();
-      const spyResSend = jest.fn();
-
-      const spyReq: any = { params: {}, body: { amount: 300 } };
-      const spyRes: any = {
-        status: spyResStatus.mockReturnValue({ send: spyResSend }),
-      };
-      const spyNext = jest.fn();
+      spyReq = { params: {}, body: { amount: 300 } };
 
       await finalPayment(spyReq, spyRes, spyNext);
 
@@ -104,15 +92,7 @@ describe('PaymentService', () => {
         amount: 1000,
         status: 'WAITING_FOR_PAYMENT',
       });
-
-      const spyResStatus = jest.fn();
-      const spyResSend = jest.fn();
-
-      const spyReq: any = { params: { fid: 'fid' } };
-      const spyRes: any = {
-        status: spyResStatus.mockReturnValue({ send: spyResSend }),
-      };
-      const spyNext = jest.fn();
+      spyReq = { params: { fid: 'fid' } };
 
       await finalPaymentConfirmation(spyReq, spyRes, spyNext);
 
@@ -138,14 +118,7 @@ describe('PaymentService', () => {
       };
       mocked(getPaymentEvidence).mockResolvedValue(paymentEvidence);
 
-      const spyResStatus = jest.fn();
-      const spyResSend = jest.fn();
-
-      const spyReq: any = { params: { fid: 'fid' } };
-      const spyRes: any = {
-        status: spyResStatus.mockReturnValue({ send: spyResSend }),
-      };
-      const spyNext = jest.fn();
+      spyReq = { params: { fid: 'fid' } };
 
       await getFinalPaymentEvidence(spyReq, spyRes, spyNext);
 
@@ -171,14 +144,7 @@ describe('PaymentService', () => {
       mocked(getPayment).mockResolvedValue({ id: 'uuid', status: 'PAID', amount: 1000 });
       mocked(updatePaymentEvidence).mockResolvedValue(updatedPaymentEvidence);
 
-      const spyResStatus = jest.fn();
-      const spyResSend = jest.fn();
-
-      const spyReq: any = { params: { fid: 'fid' } };
-      const spyRes: any = {
-        status: spyResStatus.mockReturnValue({ send: spyResSend }),
-      };
-      const spyNext = jest.fn();
+      spyReq = { params: { fid: 'fid' } };
 
       await getFinalPaymentEvidence(spyReq, spyRes, spyNext);
 
