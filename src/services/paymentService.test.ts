@@ -1,12 +1,15 @@
+import * as mockdate from 'mockdate';
 import { mocked } from 'ts-jest/utils';
 
 import { payment } from '../adapters/paymentAdapter';
 import { PaymentResponse } from '../models/payment';
-import { createPaymentEvidence } from '../repositories/paymentRepository';
+import { createPaymentEvidence, getPaymentEvidence, updatePaymentEvidence } from '../repositories/paymentRepository';
 
 import { getGoodInfo } from './GoodService';
-import { finalPayment } from './PaymentService';
+import { finalPayment, finalPaymentConfirmation } from './PaymentService';
 import { calculatePrice } from './PriceCalculator';
+
+mockdate.set('2022-01-01');
 
 jest.mock('./goodService');
 jest.mock('./priceCalculator');
@@ -22,7 +25,7 @@ const good = {
 };
 
 describe('PaymentService', () => {
-  it('should return 201 when every this works fine', async () => {
+  it('should return 201 when final payment works fine', async () => {
     mocked(getGoodInfo).mockResolvedValue(good);
     mocked(calculatePrice).mockReturnValue(9000);
     mocked(createPaymentEvidence).mockResolvedValue({
@@ -48,6 +51,36 @@ describe('PaymentService', () => {
     await finalPayment(spyReq, spyRes, spyNext);
 
     expect(spyResStatus).toHaveBeenCalledWith(201);
+    expect(spyResSend).toHaveBeenCalled();
+  });
+
+  it('should return 200 when final payment confirmation works fine', async () => {
+    mocked(getPaymentEvidence).mockResolvedValue({
+      id: 'uuid',
+      good_id: 'goodId',
+      amount: 1000,
+      status: 'WAITING_FOR_PAYMENT',
+    });
+
+    const spyResStatus = jest.fn();
+    const spyResSend = jest.fn();
+
+    const spyReq: any = { params: { fid: 'fid' } };
+    const spyRes: any = {
+      status: spyResStatus.mockReturnValue({ send: spyResSend }),
+    };
+    const spyNext = jest.fn();
+
+    await finalPaymentConfirmation(spyReq, spyRes, spyNext);
+
+    expect(updatePaymentEvidence).toHaveBeenCalledWith('fid', {
+      id: 'uuid',
+      good_id: 'goodId',
+      amount: 1000,
+      status: 'PAID',
+      updated_at: new Date('2022-01-01'),
+    });
+    expect(spyResStatus).toHaveBeenCalledWith(200);
     expect(spyResSend).toHaveBeenCalled();
   });
 });

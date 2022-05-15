@@ -21,3 +21,21 @@ export const finalPaymentRequestValidator = async (req: Request, res: Response, 
 
   return next();
 };
+
+export const finalPaymentConfirmationRequestValidator = async (req: Request, res: Response, next: NextFunction) => {
+  const { id, fid } = req.params;
+  const { amount } = req.body;
+
+  if (!id || !fid || !amount) {
+    const validationError = new CustomError(
+      BAD_REQUEST,
+      ErrorType.Validation,
+      'Request params validation failed',
+      null,
+      null,
+    );
+    return next(validationError);
+  }
+
+  return next();
+};

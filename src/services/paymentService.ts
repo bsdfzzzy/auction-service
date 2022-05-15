@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 
 import { payment } from '../adapters/paymentAdapter';
-import { createPaymentEvidence } from '../repositories/paymentRepository';
+import { createPaymentEvidence, getPaymentEvidence, updatePaymentEvidence } from '../repositories/paymentRepository';
 
 import { getGoodInfo } from './goodService';
 import { calculatePrice } from './priceCalculator';
@@ -25,4 +25,15 @@ export const finalPayment = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
-// export const finalPaymentConfirmation = async (req: Request, res: Response, next: NextFunction) => {};
+export const finalPaymentConfirmation = async (req: Request, res: Response, next: NextFunction) => {
+  const { id, fid } = req.params;
+
+  const paymentEvidence = await getPaymentEvidence(fid);
+  await updatePaymentEvidence(fid, {
+    ...paymentEvidence,
+    status: 'PAID',
+    updated_at: new Date(),
+  });
+
+  res.status(200).send();
+};

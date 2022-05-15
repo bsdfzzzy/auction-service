@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('paymentEvidence')
 export class PaymentEvidence {
@@ -17,4 +17,8 @@ export class PaymentEvidence {
   @Column()
   @CreateDateColumn()
   created_at?: Date;
+
+  @Column()
+  @UpdateDateColumn()
+  updated_at?: Date;
 }
