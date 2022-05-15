@@ -92,7 +92,7 @@ describe('PaymentService', () => {
         amount: 1000,
         status: 'WAITING_FOR_PAYMENT',
       });
-      spyReq = { params: { fid: 'fid' } };
+      spyReq = { params: { fid: 'fid' }, body: { updateAt: new Date() } };
 
       await finalPaymentConfirmation(spyReq, spyRes, spyNext);
 

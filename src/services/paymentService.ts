@@ -35,12 +35,13 @@ export const finalPayment = async (req: Request, res: Response, next: NextFuncti
 
 export const finalPaymentConfirmation = async (req: Request, res: Response, next: NextFunction) => {
   const { fid } = req.params;
+  const { updateAt } = req.body;
 
   const paymentEvidence = await getPaymentEvidence(fid);
   await updatePaymentEvidence({
     ...paymentEvidence,
     status: 'PAID',
-    updated_at: new Date(),
+    updated_at: updateAt,
   });
 
   res.status(200).send();

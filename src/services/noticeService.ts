@@ -10,7 +10,7 @@ export const createNotice = async (req: Request, res: Response, next: NextFuncti
   const { id } = req.params;
 
   const good = await getGoodInfo(id);
-  const userInfo = await getUserInfo(req.headers.token as string);
+  const userInfo = await getUserInfo(id);
 
   if (!userInfo.phoneNumber || !/^1[0-9]{10}$/.test(userInfo.phoneNumber)) {
     res.status(400).send();
@@ -27,7 +27,7 @@ export const createNotice = async (req: Request, res: Response, next: NextFuncti
   const response = await sendSMS(smsEvidence);
 
   if (response.isSuccessed()) {
-    res.status(201).send();
+    res.status(201).send(smsEvidence);
   }
 };
 
@@ -36,10 +36,10 @@ export const updateNotice = async (req: Request, res: Response, next: NextFuncti
 
   const smsEvidence = await getSMSEvidence(Number(nid));
 
-  await updateSMSEvidence({
+  const updatedSMSEvidence = await updateSMSEvidence({
     ...smsEvidence,
     status: 'SENT',
   });
 
-  res.status(200).send();
+  res.status(200).send(updatedSMSEvidence);
 };

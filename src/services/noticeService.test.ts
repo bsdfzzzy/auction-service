@@ -34,7 +34,7 @@ describe('noticeService', () => {
   const spyResStatus = jest.fn();
   const spyResSend = jest.fn();
 
-  const spyReq: any = { params: { id: 'id' }, headers: { token: 'token' } };
+  const spyReq: any = { params: { id: 'id' } };
   const spyRes: any = {
     status: spyResStatus.mockReturnValue({ send: spyResSend }),
   };
@@ -62,7 +62,7 @@ describe('noticeService', () => {
 
       expect(sendSMS).toHaveBeenCalledWith(createdSMSEvidence);
       expect(spyResStatus).toHaveBeenCalledWith(201);
-      expect(spyResSend).toHaveBeenCalled();
+      expect(spyResSend).toHaveBeenCalledWith(createdSMSEvidence);
     });
 
     it('should return 400 when user has no phoneNumber', async () => {
@@ -103,16 +103,18 @@ describe('noticeService', () => {
         is_owner: false,
         status: 'CREATED',
       };
+      const updatedSMSEvidence = {
+        ...createdSMSEvidence,
+        status: 'SENT',
+      };
       mocked(getSMSEvidence).mockResolvedValue(createdSMSEvidence);
+      mocked(updateSMSEvidence).mockResolvedValue(updatedSMSEvidence);
 
       await updateNotice(spyReq, spyRes, spyNext);
 
-      expect(updateSMSEvidence).toHaveBeenCalledWith({
-        ...createdSMSEvidence,
-        status: 'SENT',
-      });
+      expect(updateSMSEvidence).toHaveBeenCalledWith(updatedSMSEvidence);
       expect(spyResStatus).toHaveBeenCalledWith(200);
-      expect(spyResSend).toHaveBeenCalled();
+      expect(spyResSend).toHaveBeenCalledWith(updatedSMSEvidence);
     });
   });
 });
