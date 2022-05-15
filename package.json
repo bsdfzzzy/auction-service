@@ -1,7 +1,7 @@
 {
   "name": "auction-service",
   "version": "0.0.1",
-  "description": "RESTful API For Order Service.",
+  "description": "RESTful API For Auction Service.",
   "scripts": {
     "dev": "debug=* NODE_PATH=./src ts-node-dev --respawn ./src/index.ts",
     "build": "rimraf dist && tsc",
@@ -14,7 +14,7 @@
     "unit-test": "NODE_PATH=./src jest --coverage",
     "jest-integration-test": "PG_HOST=localhost NODE_PATH=./src jest -c jest.config.integration.js",
     "prepare-for-integration-test": "docker-compose --file docker-compose.integration.yml --compatibility up -d",
-    "clean-after-integration-test": "docker-compose --file docker-compose.integration.yml down && rimraf database/order",
+    "clean-after-integration-test": "docker-compose --file docker-compose.integration.yml down && rimraf database/auction",
     "commit": "git-cz",
     "docker:dev": "docker-compose --file docker-compose.yml --file docker-compose.dev.yml --compatibility up --build",
     "docker:stage": "docker-compose --file docker-compose.yml --file docker-compose.stage.yml --compatibility up --build",
