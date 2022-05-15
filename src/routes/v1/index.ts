@@ -1,11 +1,9 @@
 import { Router } from 'express';
 
-import bookingSystem from './bookingSystem';
-import orders from './orders';
+import bidContract from './bidContract';
 
 const router = Router();
 
-router.use('/orders', orders);
-router.use('/booking-system', bookingSystem);
+router.use('/bid-contracts', bidContract);
 
 export default router;
