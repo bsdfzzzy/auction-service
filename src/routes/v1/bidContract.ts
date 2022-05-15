@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import {
   finalPaymentConfirmationRequestValidator,
-  finalPaymentRequestValidator,
+  finalPaymentRequestValidator, getFinalPaymentEvidenceRequestValidator,
 } from '../../middleware/validation/finalPayment';
 import { finalPayment, finalPaymentConfirmation } from '../../services/paymentService';
 
