@@ -14,7 +14,8 @@ export const finalPayment = async (req: Request, res: Response, next: NextFuncti
   const calculatedAmount = calculatePrice(good);
 
   if (amount !== calculatedAmount) {
-    return res.status(400).send();
+    res.status(400).send();
+    next();
   }
 
   const paymentEvidence = await createPaymentEvidence({
@@ -31,7 +32,7 @@ export const finalPayment = async (req: Request, res: Response, next: NextFuncti
 };
 
 export const finalPaymentConfirmation = async (req: Request, res: Response, next: NextFunction) => {
-  const { id, fid } = req.params;
+  const { fid } = req.params;
 
   const paymentEvidence = await getPaymentEvidence(fid);
   await updatePaymentEvidence(fid, {
@@ -41,4 +42,14 @@ export const finalPaymentConfirmation = async (req: Request, res: Response, next
   });
 
   res.status(200).send();
+};
+
+export const getFinalPaymentEvidence = async (req: Request, res: Response, next: NextFunction) => {
+  const { fid } = req.params;
+
+  const paymentEvidence = await getPaymentEvidence(fid);
+
+  res.status(200).send({
+    paymentEvidence,
+  });
 };

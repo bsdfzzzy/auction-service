@@ -120,5 +120,6 @@ describe('PaymentService', () => {
 
     expect(spyResStatus).toHaveBeenCalledWith(400);
     expect(spyResSend).toHaveBeenCalled();
+    expect(spyNext).toHaveBeenCalled();
   });
 });
