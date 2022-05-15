@@ -6,5 +6,6 @@ export const getGoodInfo = async (goodId: string) => {
     name: 'good1',
     totalPrice: 10000,
     securityDeposit: 1000,
+    ownerId: 'zzy',
   };
 };

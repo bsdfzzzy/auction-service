@@ -5,10 +5,7 @@ import { PaymentResponse } from '../models/payment';
 
 import { getPayment, payment } from './paymentAdapter';
 
-jest.mock('../utils/paymentQueue');
 jest.mock('axios');
-
-// mocked(send).mockResolvedValue({ status: 201 } as any);
 
 describe('PaymentAdapter', () => {
   it('should return correct PaymentResponse', async () => {

@@ -15,6 +15,8 @@ router.post(
   [finalPaymentConfirmationRequestValidator],
   finalPaymentConfirmation,
 );
-router.post('/:id/final-payments/:fid', [getFinalPaymentEvidenceRequestValidator], getFinalPaymentEvidence);
+router.get('/:id/final-payments/:fid', [getFinalPaymentEvidenceRequestValidator], getFinalPaymentEvidence);
+
+router.post('/:id/result/notices', [getFinalPaymentEvidenceRequestValidator], getFinalPaymentEvidence);
 
 export default router;

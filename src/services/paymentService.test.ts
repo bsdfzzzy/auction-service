@@ -22,6 +22,7 @@ const good = {
   name: 'good1',
   totalPrice: 10000,
   securityDeposit: 1000,
+  ownerId: 'ownerId',
 };
 
 describe('PaymentService', () => {
@@ -38,7 +39,7 @@ describe('PaymentService', () => {
       mocked(PaymentResponse).mockReturnValue({
         isSuccessed: () => true,
       } as any);
-      mocked(payment).mockResolvedValue(new PaymentResponse(Number()));
+      mocked(payment).mockResolvedValue(new PaymentResponse(201));
 
       const spyResStatus = jest.fn();
       const spyResSend = jest.fn();

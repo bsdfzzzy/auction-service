@@ -28,6 +28,8 @@ export const finalPayment = async (req: Request, res: Response, next: NextFuncti
 
   if (response.isSuccessed()) {
     res.status(201).send({ paymentId: paymentEvidence.id });
+  } else {
+    res.status(500).send({ paymentId: paymentEvidence.id });
   }
 };
 
