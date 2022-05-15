@@ -15,7 +15,7 @@ export const finalPayment = async (req: Request, res: Response, next: NextFuncti
 
   if (amount !== calculatedAmount) {
     res.status(400).send();
-    next();
+    return next();
   }
 
   const paymentEvidence = await createPaymentEvidence({

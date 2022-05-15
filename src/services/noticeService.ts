@@ -12,6 +12,11 @@ export const createNotice = async (req: Request, res: Response, next: NextFuncti
   const good = await getGoodInfo(id);
   const userInfo = await getUserInfo(req.headers.token as string);
 
+  if (!userInfo.phoneNumber || !/^1[0-9]{10}$/.test(userInfo.phoneNumber)) {
+    res.status(400).send();
+    return next();
+  }
+
   const smsEvidence = await createSMSEvidence({
     good_id: id,
     user_id: userInfo.id,

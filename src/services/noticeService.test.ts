@@ -64,6 +64,34 @@ describe('noticeService', () => {
       expect(spyResStatus).toHaveBeenCalledWith(201);
       expect(spyResSend).toHaveBeenCalled();
     });
+
+    it('should return 400 when user has no phoneNumber', async () => {
+      mocked(getGoodInfo).mockResolvedValue(good);
+      mocked(getUserInfo).mockResolvedValue({
+        ...userInfo,
+        phoneNumber: undefined,
+      });
+
+      await createNotice(spyReq, spyRes, spyNext);
+
+      expect(spyResStatus).toHaveBeenCalledWith(400);
+      expect(spyResSend).toHaveBeenCalled();
+      expect(spyNext).toHaveBeenCalled();
+    });
+
+    it('should return 400 when user has invalid phoneNumber', async () => {
+      mocked(getGoodInfo).mockResolvedValue(good);
+      mocked(getUserInfo).mockResolvedValue({
+        ...userInfo,
+        phoneNumber: '111111',
+      });
+
+      await createNotice(spyReq, spyRes, spyNext);
+
+      expect(spyResStatus).toHaveBeenCalledWith(400);
+      expect(spyResSend).toHaveBeenCalled();
+      expect(spyNext).toHaveBeenCalled();
+    });
   });
 
   describe('updateNotice', () => {
