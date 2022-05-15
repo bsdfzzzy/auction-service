@@ -83,4 +83,23 @@ describe('PaymentService', () => {
     expect(spyResStatus).toHaveBeenCalledWith(200);
     expect(spyResSend).toHaveBeenCalled();
   });
+
+  it('should return 400 when calculated amount not equal to given amount', async () => {
+    mocked(getGoodInfo).mockResolvedValue(good);
+    mocked(calculatePrice).mockReturnValue(9000);
+
+    const spyResStatus = jest.fn();
+    const spyResSend = jest.fn();
+
+    const spyReq: any = { params: {}, body: { amount: 100 } };
+    const spyRes: any = {
+      status: spyResStatus.mockReturnValue({ send: spyResSend }),
+    };
+    const spyNext = jest.fn();
+
+    await finalPayment(spyReq, spyRes, spyNext);
+
+    expect(spyResStatus).toHaveBeenCalledWith(400);
+    expect(spyResSend).toHaveBeenCalled();
+  });
 });

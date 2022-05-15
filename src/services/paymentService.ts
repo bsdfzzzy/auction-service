@@ -8,17 +8,22 @@ import { calculatePrice } from './priceCalculator';
 
 export const finalPayment = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
+  const { amount } = req.body;
 
   const good = await getGoodInfo(id);
-  const amount = calculatePrice(good);
+  const calculatedAmount = calculatePrice(good);
+
+  if (amount !== calculatedAmount) {
+    return res.status(400).send();
+  }
 
   const paymentEvidence = await createPaymentEvidence({
     good_id: good.id,
-    amount,
+    amount: calculatedAmount,
     status: 'WAITING_FOR_PAYMENT',
   });
 
-  const response = await payment(paymentEvidence.id, amount);
+  const response = await payment(paymentEvidence.id, calculatedAmount);
 
   if (response.isSuccessed()) {
     res.status(201).send();
