@@ -73,7 +73,7 @@ describe('PaymentRepository', () => {
       status: 'WAITING_FOR_PAYMENT',
     };
 
-    await updatePaymentEvidence('1', paymentEvidence);
+    await updatePaymentEvidence(paymentEvidence);
 
     expect(mockSave).toHaveBeenCalledWith(paymentEvidence);
   });

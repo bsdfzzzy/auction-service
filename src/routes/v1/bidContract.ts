@@ -2,9 +2,10 @@ import { Router } from 'express';
 
 import {
   finalPaymentConfirmationRequestValidator,
-  finalPaymentRequestValidator, getFinalPaymentEvidenceRequestValidator,
+  finalPaymentRequestValidator,
+  getFinalPaymentEvidenceRequestValidator,
 } from '../../middleware/validation/finalPayment';
-import { finalPayment, finalPaymentConfirmation } from '../../services/paymentService';
+import { finalPayment, finalPaymentConfirmation, getFinalPaymentEvidence } from '../../services/paymentService';
 
 const router = Router();
 
@@ -14,6 +15,6 @@ router.post(
   [finalPaymentConfirmationRequestValidator],
   finalPaymentConfirmation,
 );
-router.post('/:id/final-payments/:fid', [getFinalPaymentEvidenceRequestValidator], finalPayment);
+router.post('/:id/final-payments/:fid', [getFinalPaymentEvidenceRequestValidator], getFinalPaymentEvidence);
 
 export default router;

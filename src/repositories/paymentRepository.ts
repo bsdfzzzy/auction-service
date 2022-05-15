@@ -15,7 +15,7 @@ export const getPaymentEvidence = async (id: string): Promise<PaymentEvidence> =
   return _paymentRepository.findOne(id);
 };
 
-export const updatePaymentEvidence = async (id: string, paymentEvidence: PaymentEvidence): Promise<PaymentEvidence> => {
+export const updatePaymentEvidence = async (paymentEvidence: PaymentEvidence): Promise<PaymentEvidence> => {
   const _paymentRepository = paymentRepository();
   return _paymentRepository.save(paymentEvidence);
 };

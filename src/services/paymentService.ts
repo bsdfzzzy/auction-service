@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { payment } from '../adapters/paymentAdapter';
+import { getPayment, payment } from '../adapters/paymentAdapter';
 import { createPaymentEvidence, getPaymentEvidence, updatePaymentEvidence } from '../repositories/paymentRepository';
 
 import { getGoodInfo } from './goodService';
@@ -27,7 +27,7 @@ export const finalPayment = async (req: Request, res: Response, next: NextFuncti
   const response = await payment(paymentEvidence.id, calculatedAmount);
 
   if (response.isSuccessed()) {
-    res.status(201).send();
+    res.status(201).send({ paymentId: paymentEvidence.id });
   }
 };
 
@@ -35,7 +35,7 @@ export const finalPaymentConfirmation = async (req: Request, res: Response, next
   const { fid } = req.params;
 
   const paymentEvidence = await getPaymentEvidence(fid);
-  await updatePaymentEvidence(fid, {
+  await updatePaymentEvidence({
     ...paymentEvidence,
     status: 'PAID',
     updated_at: new Date(),
@@ -48,6 +48,19 @@ export const getFinalPaymentEvidence = async (req: Request, res: Response, next:
   const { fid } = req.params;
 
   const paymentEvidence = await getPaymentEvidence(fid);
+
+  if (paymentEvidence.status === 'WAIT_FOR_PAYMENT') {
+    const paymentResult = await getPayment(paymentEvidence.id);
+    const updatedPaymentEvidence = await updatePaymentEvidence({
+      ...paymentEvidence,
+      status: paymentResult.status,
+    });
+
+    res.status(200).send({
+      paymentEvidence: updatedPaymentEvidence,
+    });
+    next();
+  }
 
   res.status(200).send({
     paymentEvidence,

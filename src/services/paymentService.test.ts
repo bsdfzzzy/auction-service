@@ -1,12 +1,12 @@
 import * as mockdate from 'mockdate';
 import { mocked } from 'ts-jest/utils';
 
-import { payment } from '../adapters/paymentAdapter';
+import { getPayment, payment } from '../adapters/paymentAdapter';
 import { PaymentResponse } from '../models/payment';
 import { createPaymentEvidence, getPaymentEvidence, updatePaymentEvidence } from '../repositories/paymentRepository';
 
 import { getGoodInfo } from './GoodService';
-import { finalPayment, finalPaymentConfirmation } from './PaymentService';
+import { finalPayment, finalPaymentConfirmation, getFinalPaymentEvidence } from './PaymentService';
 import { calculatePrice } from './PriceCalculator';
 
 mockdate.set('2022-01-01');
@@ -25,101 +25,166 @@ const good = {
 };
 
 describe('PaymentService', () => {
-  it('should return 201 when final payment works fine', async () => {
-    mocked(getGoodInfo).mockResolvedValue(good);
-    mocked(calculatePrice).mockReturnValue(9000);
-    mocked(createPaymentEvidence).mockResolvedValue({
-      id: 'uuid',
-      good_id: 'goodId',
-      amount: 9000,
-      status: 'WAITING_FOR_PAYMENT',
-    });
-    mocked(PaymentResponse).mockReturnValue({
-      isSuccessed: () => true,
-    } as any);
-    mocked(payment).mockResolvedValue(new PaymentResponse(Number()));
+  describe('finalPayment', () => {
+    it('should return 201 when final payment works fine', async () => {
+      mocked(getGoodInfo).mockResolvedValue(good);
+      mocked(calculatePrice).mockReturnValue(9000);
+      mocked(createPaymentEvidence).mockResolvedValue({
+        id: 'uuid',
+        good_id: 'goodId',
+        amount: 9000,
+        status: 'WAITING_FOR_PAYMENT',
+      });
+      mocked(PaymentResponse).mockReturnValue({
+        isSuccessed: () => true,
+      } as any);
+      mocked(payment).mockResolvedValue(new PaymentResponse(Number()));
 
-    const spyResStatus = jest.fn();
-    const spyResSend = jest.fn();
+      const spyResStatus = jest.fn();
+      const spyResSend = jest.fn();
 
-    const spyReq: any = { params: {}, body: { amount: 9000 } };
-    const spyRes: any = {
-      status: spyResStatus.mockReturnValue({ send: spyResSend }),
-    };
-    const spyNext = jest.fn();
+      const spyReq: any = { params: {}, body: { amount: 9000 } };
+      const spyRes: any = {
+        status: spyResStatus.mockReturnValue({ send: spyResSend }),
+      };
+      const spyNext = jest.fn();
 
-    await finalPayment(spyReq, spyRes, spyNext);
+      await finalPayment(spyReq, spyRes, spyNext);
 
-    expect(spyResStatus).toHaveBeenCalledWith(201);
-    expect(spyResSend).toHaveBeenCalled();
-  });
-
-  it('should return 200 when final payment confirmation works fine', async () => {
-    mocked(getPaymentEvidence).mockResolvedValue({
-      id: 'uuid',
-      good_id: 'goodId',
-      amount: 1000,
-      status: 'WAITING_FOR_PAYMENT',
+      expect(spyResStatus).toHaveBeenCalledWith(201);
+      expect(spyResSend).toHaveBeenCalled();
     });
 
-    const spyResStatus = jest.fn();
-    const spyResSend = jest.fn();
+    it('should return 400 when calculated amount is 200 and given amount is 100', async () => {
+      mocked(getGoodInfo).mockResolvedValue(good);
+      mocked(calculatePrice).mockReturnValue(200);
 
-    const spyReq: any = { params: { fid: 'fid' } };
-    const spyRes: any = {
-      status: spyResStatus.mockReturnValue({ send: spyResSend }),
-    };
-    const spyNext = jest.fn();
+      const spyResStatus = jest.fn();
+      const spyResSend = jest.fn();
 
-    await finalPaymentConfirmation(spyReq, spyRes, spyNext);
+      const spyReq: any = { params: {}, body: { amount: 100 } };
+      const spyRes: any = {
+        status: spyResStatus.mockReturnValue({ send: spyResSend }),
+      };
+      const spyNext = jest.fn();
 
-    expect(updatePaymentEvidence).toHaveBeenCalledWith('fid', {
-      id: 'uuid',
-      good_id: 'goodId',
-      amount: 1000,
-      status: 'PAID',
-      updated_at: new Date('2022-01-01'),
+      await finalPayment(spyReq, spyRes, spyNext);
+
+      expect(spyResStatus).toHaveBeenCalledWith(400);
+      expect(spyResSend).toHaveBeenCalled();
     });
-    expect(spyResStatus).toHaveBeenCalledWith(200);
-    expect(spyResSend).toHaveBeenCalled();
+
+    it('should return 400 when calculated amount is 200 and given amount is 300', async () => {
+      mocked(getGoodInfo).mockResolvedValue(good);
+      mocked(calculatePrice).mockReturnValue(200);
+
+      const spyResStatus = jest.fn();
+      const spyResSend = jest.fn();
+
+      const spyReq: any = { params: {}, body: { amount: 300 } };
+      const spyRes: any = {
+        status: spyResStatus.mockReturnValue({ send: spyResSend }),
+      };
+      const spyNext = jest.fn();
+
+      await finalPayment(spyReq, spyRes, spyNext);
+
+      expect(spyResStatus).toHaveBeenCalledWith(400);
+      expect(spyResSend).toHaveBeenCalled();
+      expect(spyNext).toHaveBeenCalled();
+    });
   });
 
-  it('should return 400 when calculated amount is 200 and given amount is 100', async () => {
-    mocked(getGoodInfo).mockResolvedValue(good);
-    mocked(calculatePrice).mockReturnValue(200);
+  describe('finalPaymentConfirmation', () => {
+    it('should return 200 when final payment confirmation works fine', async () => {
+      mocked(getPaymentEvidence).mockResolvedValue({
+        id: 'uuid',
+        good_id: 'goodId',
+        amount: 1000,
+        status: 'WAITING_FOR_PAYMENT',
+      });
 
-    const spyResStatus = jest.fn();
-    const spyResSend = jest.fn();
+      const spyResStatus = jest.fn();
+      const spyResSend = jest.fn();
 
-    const spyReq: any = { params: {}, body: { amount: 100 } };
-    const spyRes: any = {
-      status: spyResStatus.mockReturnValue({ send: spyResSend }),
-    };
-    const spyNext = jest.fn();
+      const spyReq: any = { params: { fid: 'fid' } };
+      const spyRes: any = {
+        status: spyResStatus.mockReturnValue({ send: spyResSend }),
+      };
+      const spyNext = jest.fn();
 
-    await finalPayment(spyReq, spyRes, spyNext);
+      await finalPaymentConfirmation(spyReq, spyRes, spyNext);
 
-    expect(spyResStatus).toHaveBeenCalledWith(400);
-    expect(spyResSend).toHaveBeenCalled();
+      expect(updatePaymentEvidence).toHaveBeenCalledWith({
+        id: 'uuid',
+        good_id: 'goodId',
+        amount: 1000,
+        status: 'PAID',
+        updated_at: new Date('2022-01-01'),
+      });
+      expect(spyResStatus).toHaveBeenCalledWith(200);
+      expect(spyResSend).toHaveBeenCalled();
+    });
   });
 
-  it('should return 400 when calculated amount is 200 and given amount is 300', async () => {
-    mocked(getGoodInfo).mockResolvedValue(good);
-    mocked(calculatePrice).mockReturnValue(200);
+  describe('getFinalPaymentEvidence', () => {
+    it('should return PAID payment evidence', async () => {
+      const paymentEvidence = {
+        id: 'uuid',
+        good_id: 'goodId',
+        amount: 1000,
+        status: 'PAID',
+      };
+      mocked(getPaymentEvidence).mockResolvedValue(paymentEvidence);
 
-    const spyResStatus = jest.fn();
-    const spyResSend = jest.fn();
+      const spyResStatus = jest.fn();
+      const spyResSend = jest.fn();
 
-    const spyReq: any = { params: {}, body: { amount: 300 } };
-    const spyRes: any = {
-      status: spyResStatus.mockReturnValue({ send: spyResSend }),
-    };
-    const spyNext = jest.fn();
+      const spyReq: any = { params: { fid: 'fid' } };
+      const spyRes: any = {
+        status: spyResStatus.mockReturnValue({ send: spyResSend }),
+      };
+      const spyNext = jest.fn();
 
-    await finalPayment(spyReq, spyRes, spyNext);
+      await getFinalPaymentEvidence(spyReq, spyRes, spyNext);
 
-    expect(spyResStatus).toHaveBeenCalledWith(400);
-    expect(spyResSend).toHaveBeenCalled();
-    expect(spyNext).toHaveBeenCalled();
+      expect(spyResStatus).toHaveBeenCalledWith(200);
+      expect(spyResSend).toHaveBeenCalledWith({ paymentEvidence });
+    });
+
+    it('should get payment result when payment evidence status is WAIT_FOR_PAYMENT', async () => {
+      const paymentEvidence = {
+        id: 'uuid',
+        good_id: 'goodId',
+        amount: 1000,
+        status: 'WAIT_FOR_PAYMENT',
+      };
+
+      const updatedPaymentEvidence = {
+        id: 'uuid',
+        good_id: 'goodId',
+        amount: 1000,
+        status: 'PAID',
+      };
+      mocked(getPaymentEvidence).mockResolvedValue(paymentEvidence);
+      mocked(getPayment).mockResolvedValue({ id: 'uuid', status: 'PAID', amount: 1000 });
+      mocked(updatePaymentEvidence).mockResolvedValue(updatedPaymentEvidence);
+
+      const spyResStatus = jest.fn();
+      const spyResSend = jest.fn();
+
+      const spyReq: any = { params: { fid: 'fid' } };
+      const spyRes: any = {
+        status: spyResStatus.mockReturnValue({ send: spyResSend }),
+      };
+      const spyNext = jest.fn();
+
+      await getFinalPaymentEvidence(spyReq, spyRes, spyNext);
+
+      expect(getPayment).toHaveBeenCalledWith('uuid');
+      expect(updatePaymentEvidence).toHaveBeenCalledWith(updatedPaymentEvidence);
+      expect(spyResStatus).toHaveBeenCalledWith(200);
+      expect(spyResSend).toHaveBeenCalledWith({ paymentEvidence: updatedPaymentEvidence });
+    });
   });
 });
