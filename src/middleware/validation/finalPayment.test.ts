@@ -5,7 +5,7 @@ import { CustomError } from '../../utils/response/CustomError';
 import {
   finalPaymentConfirmationRequestValidator,
   finalPaymentRequestValidator,
-  getFinalPaymentEvidenceRequestValidator
+  getFinalPaymentEvidenceRequestValidator,
 } from './finalPayment';
 
 describe('finalPayment validators', () => {
